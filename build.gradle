@@ -1,0 +1,96 @@
+buildscript {
+	ext {
+		springBootVersion = '1.3.5.RELEASE'
+		
+		// lombok Version
+		lombokVersion = '1.16.6';
+		
+		// MySQL connecterVersion
+		mySQLVersion = '5.1.34'
+
+		// MyBatis Version
+		mybatisVersion = '1.1.1'
+		
+		// guava Version
+		guavaVersion = '19.0'
+	}
+	repositories {
+      mavenCentral()
+      maven {
+        url "https://plugins.gradle.org/m2/"
+      }
+    }
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+		classpath "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:1.4.16"
+	}
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'spring-boot'
+apply plugin: 'com.gorylenko.gradle-git-properties'
+
+springBoot {
+    executable = true
+}
+
+jar {
+	baseName = 'Application'
+	version = '0.0.1-SNAPSHOT'
+}
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+configurations {
+    provided
+}
+
+sourceSets {
+    main { compileClasspath += configurations.provided }
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	compile('org.springframework.boot:spring-boot-starter-web')
+	testCompile('org.springframework.boot:spring-boot-starter-test')
+	provided("org.projectlombok:lombok:${lombokVersion}")
+	compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.4'
+
+	// MySQL + MyBatis(ORM) --- start ---
+	compile("mysql:mysql-connector-java:${mySQLVersion}")
+	compile("org.mybatis.spring.boot:mybatis-spring-boot-starter:${mybatisVersion}")
+	compile("org.springframework.boot:spring-boot-starter-data-jpa:${springBootVersion}")
+	// MySQL + MyBatis(ORM) --- end ---
+	
+	// template engine --- start ---
+	compile("org.springframework.boot:spring-boot-starter-thymeleaf:${springBootVersion}")
+	// template engine --- end ---
+	
+	// batch --- start ---
+	compile("com.google.guava:guava:${guavaVersion}")
+	// batch --- end ---
+	
+	// csrf --- start ---
+	compile("org.springframework.boot:spring-boot-starter-security");
+	// csrf --- end ---
+	
+	// Developer tools --- start ---
+	compile("org.springframework.boot:spring-boot-devtools")
+	// Developer tools --- end ---
+	
+	compile "org.springframework.boot:spring-boot-starter-actuator"
+}
+
+
+eclipse {
+	classpath {
+		 containers.remove('org.eclipse.jdt.launching.JRE_CONTAINER')
+		 containers 'org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8'
+		 plusConfigurations += [configurations.provided]
+		 noExportConfigurations += [configurations.provided]
+	}
+}
